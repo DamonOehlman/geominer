@@ -1,8 +1,11 @@
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.JsonNode;
+import geominer.Dumper;
+import geominer.v1.*;
 
 URL gowallaSpots = new URL('http://api.gowalla.com/spots');
+def callbackFn = params.callback;
 
 if ((! params.lat) || (! params.lng)) {
     response.outputStream << 'error'
@@ -26,10 +29,24 @@ HTTPResponse gowallaResp = gowallaSpots.get(
 ObjectMapper mapper = new ObjectMapper();
 JsonNode rootNode = mapper.readValue(gowallaResp.text, JsonNode.class);
 
-/*
+// create the resource container object
+ResourceType resType = new ResourceType();
+resType.typeName = 'dirt';
+
 rootNode.spots.each { spot ->
-    response.outputStream << spot.lat
-}
-*/
+    // create the new resource
+    Resource resource = new Resource();
     
-response.outputStream << rootNode
+    // initialise the resource details
+    resource.name = spot.name.valueAsText;
+    resource.lat = spot.lat.doubleValue;
+    resource.lng = spot.lng.doubleValue;
+    
+    // add to the resource types list of resources
+    resType.deposits << resource;
+}
+
+// dump the response to the specified stream
+Dumper.dump(response.outputStream, resType, params.callback, mapper);
+    
+// response.outputStream << rootNode

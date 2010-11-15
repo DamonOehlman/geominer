@@ -6,4 +6,5 @@ get "/book/isbn/@isbn", forward: "/WEB-INF/groovy/book.groovy?isbn=@isbn", valid
 */
 
 // routes for the blobstore service example
-get "/v1/@endpoint", forward: "/api-v1/@endpoint.groovy"
+get "/@version/@gameid/@endpoint/@method", forward: "/api-@version/@endpoint/@method.groovy?gameid=@gameid"
+get "/@version/@gameid/@endpoint", forward: "/api-@version/@endpoint/index.groovy?gameid=@gameid"
